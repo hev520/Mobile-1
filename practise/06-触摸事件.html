@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    </head>
+    <body>
+      <div id="title"></div>
+      <script type="text/javascript">
+      	var oTitle = document.querySelector('#title');
+      	document.addEventListener('touchstart',function(event){
+      		console.log(event);
+      		oTitle.innerText = '您正在使用'+event.touches.length+'手指在触摸';
+      		console.log(event.touches);
+      		document.addEventListener('touchmove',function(event){
+      			//阻止默认事件
+      			oTitle.innerText="";
+      			var text ="";
+      			for (var i = 0; i < event.touches.length; i++) {
+      				text += "第"+ i + "根猪手信息<br/>";
+      				text += event.touches[i].clientX+"<br/>"+event.touches[i].clientY+"<br/>"
+
+      			}
+      			oTitle.innerText=text;
+      		})
+      	},false)
+      </script>
+    </body>
+</html>

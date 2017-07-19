@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <style>
+        	*{
+        		margin: 0;
+        		padding: 0;
+        	}
+        	.carousel {
+        		width: 100%；
+        		height:300px;
+        		overflow: hidden;
+        	}
+        	.carousel ul {
+				list-style: none;
+        	}
+        	.carousel ul li {
+        		position: absolute;
+        		left: 0;
+        		top: 0;
+        	}
+        	.carousel ul li img {
+        		width: 100%;
+        	}
+        </style>
+    </head>
+    <body>
+    	<div class="carousel">
+    		<ul class="imagesList">
+    			<li><a href=""><img src="images/a.jpg" alt="" width="300"></a></li>
+    			<li><a href=""><img src="images/b.jpg" alt="" width="300"></a></li>
+    			<li><a href=""><img src="images/c.png" alt="" width="300"></a></li>
+    			<li><a href=""><img src="images/d.jpg" alt="" width="300"></a></li>
+    		</ul>
+    	</div>
+    	<script type="text/javascript">
+    	window.onload=function(){
+    		window.onmousewheel=document.onmousewheel=function(){
+    			return false;
+    		}
+    		//得到轮播图里面的li
+    		var carousel = document.querySelector('.carousel');
+    		var imagesLis = document.querySelectorAll('.carousel .imagesList li')
+    		console.log(imagesLis);
+    		//信号量
+    		var idx = 0;//当前中间图片
+    		var next = 1;//下一张图
+    		var prev = imagesLis.length - 1;//上一张
+    		var windowHeight;
+    		//初始化
+    		init();
+    		//屏幕尺寸改变重新执行初始化
+    		window.onresize = init;
+    		function init() {
+    			//屏幕的宽度
+    			windowHeight = document.documentElement.clientHeight;
+    			console.log(windowHeight);
+    			//设置盒子的高度
+    			carousel.style.Height = windowHeight/(2560/1440)+'px';
+    			//设置li的默认位置
+    			for (var i = 0; i < imagesLis.length; i++) {
+    				imagesLis[i].style.webkitTransform = "translateY("+windowHeight + 'px)';
+    			}
+    			//新的位置
+    			imagesLis[prev].style.webkitTransform = "translateY(" + -windowHeight + 'px)';
+    			imagesLis[idx].style.webkitTransform = "translateY(0px)";
+    			imagesLis[next].style.webkitTransform = "translateY(" + windowHeight + 'px)';
+    			//去掉过渡，移动的时候我们希望实时的跟随鼠标，而不是有过渡效果
+    			imagesLis[prev].style.transition = "none";
+    			imagesLis[idx].style.transition = "none";
+    			imagesLis[next].style.transition = "none";
+    		}
+    		//事件监听
+    		carousel.addEventListener('touchstart',touchstartHandler,false);
+    		carousel.addEventListener('touchmove',touchmoveHandler,false);
+    		carousel.addEventListener('touchend',touchendHandler,false);
+    		var deltaY, startY, startTime;
+
+    	// 	//表示触摸开始,，这个事件每次触摸只会触发一次。
+    		function touchstartHandler(event){
+    			//阻止默认事件
+    			event.preventDefault();
+    			//手指个数
+    			if (event.touches.length>1) return;
+
+    			//记录偏移值
+    			deltaY = event.touches[0].clientY;
+    			startY = event.touches[0].clientY;
+    			//去掉过渡效果
+    			imagesLis[prev].style.transition = "none";
+    			imagesLis[idx].style.transition = "none";
+    			imagesLis[next].style.transition = "none";
+    			//记录时间戳
+    			startTime = new Date();
+    			console.log(startTime);
+    		}
+           // 表示触摸移动，手指放到屏幕上，移动的时候触发
+           function touchmoveHandler (event){
+           	//阻止默认事件
+           	event.preventDefault();
+           	//判断 手指个数
+           	if (event.touches.length>1) return;
+           	//得到坐标x
+           	var clientY = event.touches[0].clientY;
+           	//改变图片的位置
+           	imagesLis[idx].style.webkitTransform = "translateY(" +(clientY-deltaY) +'px)';
+           	imagesLis[next].style.webkitTransform = "translateY(" + (windowHeight +(clientY-deltaY)) + 'px)';
+           	imagesLis[prev].style.webkitTransform = "translateY(" + (-windowHeight + (clientY-deltaY)) + 'px)';
+           }
+     //       // 表示触摸结束
+           function touchendHandler() {
+           	//阻止默认事件
+           	console.log(event);
+           	event.preventDefault();
+           	//判断滑动是否成功
+           	var distance = event.changedTouches[0].clientY -startY;
+           	//滑动的时间
+           	var time = new Date() - startTime;
+           	// 如果你想右滑动超过了屏幕的一半，或者想右滑动事件小于300毫秒，距离大于30px则认为滑动成功
+           	if (distance >= windowHeight/2 || (distance > 30 && time < 300)) {
+           		//向右滑动成功
+           		console.log('向右滑动成功');
+           		next = idx;
+           		idx = prev;
+           		prev--;
+           		if (prev < 0) {
+           			prev = imagesLis.length - 1;
+           		}
+           		//加上过渡
+                imagesLis[idx].style.transition = "all 2s ease 0s";
+                imagesLis[next].style.transition = "all 2s ease 0s";
+                 //移动
+                imagesLis[idx].style.webkitTransform = "translateY(0px)";
+                imagesLis[next].style.webkitTransform = "translateY(" + windowHeight + 'px)';
+           	}else if (distance <= -windowHeight/2 || (distance <-30 && time <300)) {
+           		showNext();
+           	}else {
+           		//绝对值不到windowWidth/2
+           		console.log('不成功');
+           		//加上过渡
+           		imagesLis[prev].style.transition = "all 2 ease 0s";
+           		imagesLis[idx].style.transition = "all 2 ease 0s";
+           		imagesLis[next].style.transition = "all 2 ease 0s";
+           		// 移动
+           		imagesLis[prev].style.webkitTransform = "translateY(" + -windowHeight + 'px)';
+    			imagesLis[idx].style.webkitTransform = "translateY(0px)";
+    			imagesLis[next].style.webkitTransform = "translateY(" + windowHeight + 'px)';
+
+    	     }
+
+    	   }
+    	   function showNext() {
+             console.log('向左滑动成功');
+             //先改变信号量
+             prev = idx;
+             idx = next;
+             next++;
+	         if (next > imagesLis.length - 1) {
+	          next = 0;
+	         }
+	         imagesLis[next].style.transition = "none";
+	         imagesLis[next].style.webkitTransform = "translateY(" + windowHeight + 'px)';
+	         //加上过渡
+	         imagesLis[prev].style.transition = "all 2s ease 0s";
+	         imagesLis[idx].style.transition = "all 2s ease 0s";
+	         //移动
+	         imagesLis[prev].style.webkitTransform = "translateY(" + -windowHeight + 'px)';
+	         imagesLis[idx].style.webkitTransform = "translateY(0px)";
+	         imagesLis[next].style.webkitTransform = "translateY(" + windowHeight + 'px)';
+	      }
+    	}
+    	</script>
+    	<!-- touches是当前屏幕上所有触摸点的列表;
+        targetTouches是当前对象上所有触摸点的列表;
+        changedTouches是涉及当前事件的触摸点的列表。 -->
+    </body>
+</html>

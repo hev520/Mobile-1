@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+        	*{
+        		margin: 0;
+        		padding: 0;
+        	}
+        	html {
+        		font-size: 30px;
+        	}
+        	div {
+        		float: left;
+        		border: 1px solid #000;
+        		width: 33.33333%;
+        		height: 6.666rem;
+        		box-sizing: border-box;
+        	}
+
+        </style>
+    </head>
+    <body>
+     <div>1</div>
+     <div>2</div>
+     <div>3</div>
+     设计师给的实际图600宽，600状态下的font-size是30px;所以当前的字号就是要按比例来
+     页面宽度/600=字体/30
+     <script>
+     	window.onresize =setFontSize;
+
+     	function setFontSize() {
+     		var windowWidth = document.documentElement.clientWidth;document.documentElement.style.fontSize = 30*(windowWidth/600)+'px';
+     	}
+     	// window.onresize = setFontSize;
+     	// function setFontSize(){
+     	// 	var windowWidth
+     	// }
+     </script>
+    </body>
+</html>
